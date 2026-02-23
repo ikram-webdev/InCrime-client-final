@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { MdBalance } from 'react-icons/md';
 import { FiEye, FiEyeOff, FiLock, FiUser, FiMail, FiPhone, FiAlertCircle, FiUserPlus } from 'react-icons/fi';
 
+// 1. Password Strength Logic
 function getStrength(val) {
   let score = 0;
   if (val.length >= 8 && val.length <= 16) score++;
@@ -14,6 +15,37 @@ function getStrength(val) {
   if (score === 3) return { label: 'Medium password', color: '#fb8c00', width: '65%' };
   return { label: 'Strong password', color: '#43a047', width: '100%' };
 }
+
+// 2. Field Component ko BAHAR nikaal diya taake focus issue khatam ho jaye
+const Field = ({ name, type = 'text', placeholder, icon: Icon, value, onChange, error, inputBase, iconPos, errBorder, setErrors }) => (
+  <div style={{ marginBottom: 12, position: 'relative' }}>
+    <Icon size={15} style={iconPos} />
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => {
+        onChange(e);
+        setErrors((prev) => ({ ...prev, [name]: null })); // typing par error hatane ke liye
+      }}
+      style={{ ...inputBase, ...(error ? errBorder : {}) }}
+      className="signup-input"
+      onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
+      onBlur={e => { 
+        if (!error) {
+          e.target.style.borderColor = '#e0e0e0'; 
+          e.target.style.background = '#fafafa'; 
+        }
+      }}
+      autoComplete={name}
+    />
+    {error && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#e53935', fontSize: 12, marginTop: 3 }}>
+        <FiAlertCircle size={12} />{error}
+      </div>
+    )}
+  </div>
+);
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -26,13 +58,14 @@ export default function Signup() {
   const [errors, setErrors] = useState({});
   const strength = form.password ? getStrength(form.password) : null;
 
+  // Shared Styles
   const inputBase = {
     width: '100%', boxSizing: 'border-box', padding: '11px 14px 11px 40px',
     border: '2px solid #e0e0e0', borderRadius: 9, fontSize: 14,
     fontFamily: "'Segoe UI', sans-serif", transition: 'border-color 0.2s', background: '#fafafa',
   };
   const errBorder = { borderColor: '#e53935' };
-  const iconPos = { position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa', pointerEvents: 'none' };
+  const iconPos = { position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa', pointerEvents: 'none', zIndex: 10 };
 
   const validate = () => {
     const e = {};
@@ -41,7 +74,7 @@ export default function Signup() {
     if (!form.email && !form.phone) e.contact = 'Email or phone required';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
     if (!form.password) e.password = 'Password required';
-    else if (strength && strength.label === 'Weak password') e.password = 'Please use a stronger password (8+ chars with uppercase, number and special char)';
+    else if (strength && strength.label === 'Weak password') e.password = 'Password too weak';
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
     return e;
   };
@@ -53,7 +86,13 @@ export default function Signup() {
     if (Object.keys(vErrors).length > 0) { setErrors(vErrors); return; }
     setLoading(true);
     try {
-      const res = await register({ fullName: form.fullName, username: form.username, email: form.email || undefined, phone: form.phone || undefined, password: form.password });
+      const res = await register({ 
+        fullName: form.fullName, 
+        username: form.username, 
+        email: form.email || undefined, 
+        phone: form.phone || undefined, 
+        password: form.password 
+      });
       if (res.success) navigate('/');
       else setError(res.message || 'Registration failed');
     } catch (err) {
@@ -63,28 +102,11 @@ export default function Signup() {
     }
   };
 
-  const Field = ({ name, type = 'text', placeholder, icon: Icon }) => (
-    <div style={{ marginBottom: 12, position: 'relative' }}>
-      <Icon size={15} style={iconPos} />
-      <input
-        type={type} placeholder={placeholder} value={form[name]}
-        onChange={e => { setForm({ ...form, [name]: e.target.value }); setErrors({}); }}
-        style={{ ...inputBase, ...(errors[name] ? errBorder : {}) }}
-        onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
-        onBlur={e => { if (!errors[name]) e.target.style.borderColor = '#e0e0e0'; e.target.style.background = '#fafafa'; }}
-        autoComplete={type === 'password' ? 'new-password' : name}
-        className="signup-input"
-      />
-      {errors[name] && <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#e53935', fontSize: 12, marginTop: 3 }}><FiAlertCircle size={12} />{errors[name]}</div>}
-    </div>
-  );
-
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center',
       fontFamily: "'Segoe UI', sans-serif",
-      background: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-        url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat fixed`,
+      background: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat fixed`,
       padding: '20px',
     }}>
       <style>{`
@@ -114,16 +136,34 @@ export default function Signup() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <Field name="fullName" placeholder="Full Name" icon={FiUser} />
-          <Field name="username" placeholder="Username" icon={FiUser} />
+          {/* Custom Fields */}
+          <Field 
+            name="fullName" 
+            placeholder="Full Name" 
+            icon={FiUser} 
+            value={form.fullName} 
+            onChange={e => setForm({...form, fullName: e.target.value})}
+            error={errors.fullName}
+            inputBase={inputBase} iconPos={iconPos} errBorder={errBorder} setErrors={setErrors}
+          />
+          
+          <Field 
+            name="username" 
+            placeholder="Username" 
+            icon={FiUser} 
+            value={form.username} 
+            onChange={e => setForm({...form, username: e.target.value})}
+            error={errors.username}
+            inputBase={inputBase} iconPos={iconPos} errBorder={errBorder} setErrors={setErrors}
+          />
 
           {/* Email & Phone */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ position: 'relative', marginBottom: 8 }}>
               <FiMail size={15} style={iconPos} />
               <input type="email" placeholder="Email Address" value={form.email}
-                onChange={e => { setForm({ ...form, email: e.target.value }); setErrors({}); }}
-                style={{ ...inputBase, ...(errors.email ? errBorder : {}) }}
+                onChange={e => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, contact: null, email: null }); }}
+                style={{ ...inputBase, ...(errors.email || errors.contact ? errBorder : {}) }}
                 className="signup-input"
                 onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
                 onBlur={e => { e.target.style.borderColor = '#e0e0e0'; e.target.style.background = '#fafafa'; }}
@@ -132,14 +172,14 @@ export default function Signup() {
             <div style={{ position: 'relative' }}>
               <FiPhone size={15} style={iconPos} />
               <input type="tel" placeholder="Phone Number (optional)" value={form.phone}
-                onChange={e => setForm({ ...form, phone: e.target.value })}
+                onChange={e => { setForm({ ...form, phone: e.target.value }); setErrors({ ...errors, contact: null }); }}
                 style={inputBase} className="signup-input"
                 onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
                 onBlur={e => { e.target.style.borderColor = '#e0e0e0'; e.target.style.background = '#fafafa'; }}
               />
             </div>
             {errors.contact && <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#e53935', fontSize: 12, marginTop: 3 }}><FiAlertCircle size={12} />{errors.contact}</div>}
-            {errors.email && <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#e53935', fontSize: 12 }}><FiAlertCircle size={12} />{errors.email}</div>}
+            {errors.email && <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#e53935', fontSize: 12, marginTop: 3 }}><FiAlertCircle size={12} />{errors.email}</div>}
           </div>
 
           {/* Password */}
@@ -147,7 +187,7 @@ export default function Signup() {
             <FiLock size={15} style={iconPos} />
             <input type={showPass ? 'text' : 'password'} placeholder="Password"
               value={form.password}
-              onChange={e => { setForm({ ...form, password: e.target.value }); setErrors({}); }}
+              onChange={e => { setForm({ ...form, password: e.target.value }); setErrors({ ...errors, password: null }); }}
               style={{ ...inputBase, paddingRight: 42, ...(errors.password ? errBorder : {}) }}
               className="signup-input"
               onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
@@ -174,7 +214,7 @@ export default function Signup() {
             <FiLock size={15} style={iconPos} />
             <input type={showConfirm ? 'text' : 'password'} placeholder="Confirm Password"
               value={form.confirmPassword}
-              onChange={e => { setForm({ ...form, confirmPassword: e.target.value }); setErrors({}); }}
+              onChange={e => { setForm({ ...form, confirmPassword: e.target.value }); setErrors({ ...errors, confirmPassword: null }); }}
               style={{ ...inputBase, paddingRight: 42, ...(errors.confirmPassword ? errBorder : {}) }}
               className="signup-input"
               onFocus={e => { e.target.style.borderColor = '#0d2a3a'; e.target.style.background = '#fff'; }}
