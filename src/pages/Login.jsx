@@ -130,9 +130,7 @@ export default function Login() {
           </a>
         </div>
 
-        <p style={{ marginTop: 12, fontSize: 12, color: '#bbb', background: '#f9f9f9', padding: '8px 12px', borderRadius: 6 }}>
-          Admin: <strong>admin</strong> / <strong>Admin@123456</strong>
-        </p>
+      
 
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
