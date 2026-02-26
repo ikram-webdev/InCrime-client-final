@@ -6,9 +6,10 @@ export default function About() {
   const navigate = useNavigate();
 
   const teamMembers = [
-    { name: 'Ikram Khan', role: 'Founder & Lead Developer', icon: '👨‍💻', desc: 'Full-stack developer specializing in legal tech solutions for Pakistan.' },
-    { name: 'Legal Advisory Team', role: 'Legal Consultants', icon: '⚖️', desc: 'Experienced lawyers and advocates ensuring accuracy of all templates.' },
-    { name: 'AI Research Team', role: 'AI & ML Engineers', icon: '🤖', desc: 'Building intelligent systems to assist in legal document generation.' },
+    { name: 'Asad Mehmood', role: 'Founder & Lead Manager', icon: '👨‍💻', desc: 'Web Developer specializing in legal tech solutions.' },
+    { name: 'Saim Zia', role: '', icon: '👨‍💻', desc: 'Web Developer specializing in legal tech solutions.' },
+    { name: 'Farrukh Iqbal', role: '', icon: '👨‍💻', desc: 'Web Developer specializing in legal tech solutions.' },
+    { name: 'Fakhar Gillani', role: '', icon: '👨‍💻', desc: 'Web Developer specializing in legal tech solutions.' },
   ];
 
   const values = [

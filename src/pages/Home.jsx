@@ -185,7 +185,6 @@ export default function Home() {
       padding: 7px 16px; border-radius: 50px;
       font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
       margin-bottom: 24px;
-      animation: fadeUp 0.6s ease both;
     }
     .hero-h1 {
       font-family: 'Playfair Display', Georgia, serif;
@@ -193,7 +192,6 @@ export default function Home() {
       font-weight: 800; line-height: 1.15;
       color: var(--white);
       margin-bottom: 22px;
-      animation: fadeUp 0.6s 0.1s ease both;
     }
     .hero-h1 span { color: var(--gold); }
     .hero-p {
@@ -201,11 +199,9 @@ export default function Home() {
       color: rgba(255,255,255,0.72);
       line-height: 1.75; max-width: 520px;
       margin-bottom: 38px;
-      animation: fadeUp 0.6s 0.2s ease both;
     }
     .hero-btns {
       display: flex; gap: 14px; flex-wrap: wrap;
-      animation: fadeUp 0.6s 0.3s ease both;
     }
     .btn-primary {
       display: inline-flex; align-items: center; gap: 9px;
@@ -234,7 +230,6 @@ export default function Home() {
       border-radius: 24px; padding: 40px 34px;
       text-align: center; cursor: pointer;
       transition: all 0.35s;
-      animation: fadeUp 0.6s 0.25s ease both;
     }
     .hero-card:hover {
       transform: translateY(-10px);
@@ -384,7 +379,6 @@ export default function Home() {
       padding: 28px 24px; cursor: pointer; position: relative; overflow: hidden;
       border: 1.5px solid var(--border);
       transition: all 0.3s;
-      animation: fadeUp 0.5s var(--delay, 0ms) ease both;
     }
     .case-card .card-glow {
       position: absolute; inset: 0;
